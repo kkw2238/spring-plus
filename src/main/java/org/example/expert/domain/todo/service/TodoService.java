@@ -25,6 +25,8 @@ public class TodoService {
     private final TodoRepository todoRepository;
     private final WeatherClient weatherClient;
 
+    // 추가한 코드 : 쓰기도 진행하지만 Readonly로 설정되어 있던 것을 쓰기도 가능하게 수정
+    @Transactional
     public TodoSaveResponse saveTodo(AuthUser authUser, TodoSaveRequest todoSaveRequest) {
         User user = User.fromAuthUser(authUser);
 
