@@ -34,14 +34,17 @@ public class JwtUtil {
         key = Keys.hmacShaKeyFor(bytes);
     }
 
-    public String createToken(Long userId, String email, UserRole userRole) {
+    // 수정한 코드 : 토큰에 nickname정보도 넣을 수 있게 수정
+    public String createToken(Long userId, String email, UserRole userRole, String nickname) {
         Date date = new Date();
 
         return BEARER_PREFIX +
                 Jwts.builder()
                         .setSubject(String.valueOf(userId))
-                        .claim("email", email)
-                        .claim("userRole", userRole)
+                        // 변경 코드 : 문자열로 존재하던 claim Key값을 Protocol에서 가져오게 수정
+                        .claim(Protocol.EMAIL, email)
+                        .claim(Protocol.USER_ROLE, userRole)
+                        .claim(Protocol.NICKNAME, nickname)
                         .setExpiration(new Date(date.getTime() + TOKEN_TIME))
                         .setIssuedAt(date) // 발급일
                         .signWith(key, signatureAlgorithm) // 암호화 알고리즘

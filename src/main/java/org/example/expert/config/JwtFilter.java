@@ -55,11 +55,13 @@ public class JwtFilter implements Filter {
                 return;
             }
 
-            UserRole userRole = UserRole.valueOf(claims.get("userRole", String.class));
+            UserRole userRole = UserRole.valueOf(claims.get(Protocol.USER_ROLE, String.class));
 
-            httpRequest.setAttribute("userId", Long.parseLong(claims.getSubject()));
-            httpRequest.setAttribute("email", claims.get("email"));
-            httpRequest.setAttribute("userRole", claims.get("userRole"));
+            // 변경 코드 : 문자열로 존재하던 attribute 내용을 Protocol에서 가져오게 수정
+            httpRequest.setAttribute(Protocol.USER_ID, Long.parseLong(claims.getSubject()));
+            httpRequest.setAttribute(Protocol.EMAIL, claims.get(Protocol.EMAIL));
+            httpRequest.setAttribute(Protocol.USER_ROLE, claims.get(Protocol.USER_ROLE));
+            httpRequest.setAttribute(Protocol.NICKNAME, claims.get(Protocol.NICKNAME));
 
             if (url.startsWith("/admin")) {
                 // 관리자 권한이 없는 경우 403을 반환합니다.
