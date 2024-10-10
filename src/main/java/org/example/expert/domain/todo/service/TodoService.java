@@ -62,8 +62,8 @@ public class TodoService {
             throw new InvalidRequestException("종료 일자는 시작 일자보다 뒤에 있어야 합니다");
         }
 
-        LocalDateTime findTimeAt = LocalDateTime.of(beginTime, LocalTime.MIN);
-        LocalDateTime findTimeEnd = LocalDateTime.of(endTime, LocalTime.MAX);
+        LocalDateTime findTimeAt = beginTime.atStartOfDay();
+        LocalDateTime findTimeEnd = endTime.atTime(LocalTime.MAX);
 
         /* 추가된 코드 : 날씨가 존재하는 경우 기간내에 있는 모든 Todo중 날씨가 일치하는 Todo를 검색
             그 외의 경우 : 기간내에 있는 모든 Todo를 검색
