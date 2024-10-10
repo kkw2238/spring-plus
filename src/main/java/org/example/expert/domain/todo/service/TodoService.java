@@ -17,6 +17,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -49,11 +53,26 @@ public class TodoService {
         );
     }
 
-    public Page<TodoResponse> getTodos(int page, int size) {
+    public Page<TodoResponse> getTodos(int page, int size, String weather, LocalDate beginTime , LocalDate endTime) {
         Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Todo> todos;
 
-        Page<Todo> todos = todoRepository.findAllByOrderByModifiedAtDesc(pageable);
+        // 추가된 코드 : 시작 일자가 종료 일자보다 뒤에 있는 경우 에러 반환
+        if (beginTime.isAfter(endTime)) {
+            throw new InvalidRequestException("종료 일자는 시작 일자보다 뒤에 있어야 합니다");
+        }
 
+        LocalDateTime findTimeAt = LocalDateTime.of(beginTime, LocalTime.MIN);
+        LocalDateTime findTimeEnd = LocalDateTime.of(endTime, LocalTime.MAX);
+
+        /* 추가된 코드 : 날씨가 존재하는 경우 기간내에 있는 모든 Todo중 날씨가 일치하는 Todo를 검색
+            그 외의 경우 : 기간내에 있는 모든 Todo를 검색
+         */
+        if (weather != null) {
+            todos = todoRepository.findByWeatherInPeriod(weather, findTimeAt, findTimeEnd, pageable);
+        } else {
+            todos = todoRepository.findTodoInPeriod(findTimeAt, findTimeEnd, pageable);
+        }
         return todos.map(todo -> new TodoResponse(
                 todo.getId(),
                 todo.getTitle(),
